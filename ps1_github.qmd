@@ -93,7 +93,7 @@ than never committing it.
   folder `/docs`. After a minute, `https://<username>.github.io/psych251-ps1/` shows your page.
 - Put that URL at the top of your README.
 
-You will use this exact mechanism to host your experiment and your replication report.
+You will use this exact mechanism to host your experiment online for participants.
 
 ## What we grade (10 points)
 

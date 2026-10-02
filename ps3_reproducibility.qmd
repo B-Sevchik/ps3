@@ -73,7 +73,7 @@ your grade.
 ## What you turn in
 
 Two rendered reports from `ps3_check_template.qmd` (one for Part A, one for Part B), each
-including the agent's code, your verdicts, and the AI documentation section. Put both in a public GitHub repo and publish the rendered HTML with GitHub Pages, as you did in Problem Set 1; submit the two Pages URLs.
+including the agent's code, your verdicts, and the AI documentation section. Put both in a public GitHub repo (with the transcripts), publish each one to [Posit Connect Cloud](https://connect.posit.cloud) (free account) with `quarto publish posit-connect-cloud <file>.qmd`, run in a terminal in your repository. This needs Quarto 1.9 or newer; check with `quarto --version`. Submit the two links.
 
 ## Grading (15 points)
 
