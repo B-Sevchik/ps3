@@ -13,8 +13,8 @@ Analytic reproducibility is the floor: given the authors' data and their descrip
 analysis, can someone else get the numbers in the paper? Past checks of open-data papers in
 psychology found that a large fraction could not be reproduced without contacting the
 authors, and that the process takes hours per paper. Agents change the cost of this work
-dramatically. This problem set asks how much, and produces a small reproducibility census
-of a recent corpus that the class will write up together.
+dramatically. This problem set asks how much. It also checks the original papers behind the
+class's own replication projects, and those results feed the class metascience project.
 
 Read Experimentology Chapter 3 (replication and reproducibility) and Chapter 13 (project
 management) first.
@@ -32,25 +32,28 @@ paper (exact / minor discrepancy / major discrepancy / not attempted), and did t
 own claim about success match reality?
 
 We know how each of these six articles turns out. The point of Part A is to see how your
-agent behaves when you can check it.
+agent behaves when you can check it. Do just one article, then move on to Part B.
 
 ## Part B: a paper in the wild (the real work)
 
-You will be assigned one recent open-data article from the class corpus (posted on Canvas
-in week 8; each paper goes to two students who work independently and must
-not compare notes before the deadline).
+You will be assigned the original paper behind a classmate's replication project. We assign
+only papers whose authors posted their data, never your own project's paper, and each paper
+goes to two students. Work independently: do not compare notes with the other checker, or
+with the student whose project it is, before the deadline.
 
 Using `ps3_check_template.qmd`:
 
 1. **Identify the target outcomes**: the key statistical results from the abstract and the
    primary analysis (typically 3–6 numbers: test statistics, p-values, effect sizes,
-   descriptives). Write them down before touching the data.
+   descriptives). One of them must be the **key effect** of the classmate's replication
+   project (we will tell you which result it is). Write them down before touching the data.
 2. **Obtain the data and materials** from the repository linked in the paper. Record what
    was available (data, codebook, analysis code) and what was missing.
 3. **Reproduce**, with an agent doing the work under your direction. Export the agent's
    transcript (see below). You may intervene as much as you like, but log it.
 4. **Report** per target outcome: reproduced value, paper value, verdict (exact / minor /
-   major / not reproducible), and the reason for any discrepancy if you found one.
+   major / not reproducible), and the reason for any discrepancy if you found one. Give the
+   reproduced values as numbers, not just verdicts.
 5. **Time**: total hours, split into your time and agent wall-clock time. Stop at **4 hours**
    and report what remained.
 6. **Assessment**: is the paper's primary result analytically reproducible? What would the
@@ -86,4 +89,5 @@ including the agent's code, your verdicts, and the AI documentation section. Put
 
 Discrepancies are not your fault and cost no points; unexplained discrepancies do. The
 class's Part B verdicts will be aggregated (with agreement between the two checkers per
-paper) into a short report we will discuss together.
+paper) into a short report we will discuss together, and the key-effect results become the
+reproducibility measure in the class metascience project.

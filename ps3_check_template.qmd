@@ -15,11 +15,13 @@ execute:
 
 - Citation and DOI:
 - Data/materials repository URL:
-- Part A (known case) or Part B (class corpus):
+- Part A (known case) or Part B (a classmate's project paper):
+- Part B only: the classmate's project repo, and which target outcome is its key effect:
 
 ## Target outcomes
 
-Written **before** opening the data. Quote each from the paper.
+Written **before** opening the data. Quote each from the paper. In Part B, one of these must
+be the project's key effect.
 
 | # | Target outcome (quoted) | Paper value(s) |
 |---|---|---|
