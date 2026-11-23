@@ -1,0 +1,95 @@
+---
+title: "Reproducibility check: Joel et al. 2014"
+author: "Brooke Sevchik"
+date: today
+format:
+  html:
+    toc: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Article
+
+- Citation and DOI: Joel S, Teper R, MacDonald G. People overestimate their willingness to reject potential romantic partners by overlooking their concern for other people. Psychol Sci. 2014 Dec;25(12):2233-40. doi: 10.1177/0956797614552828. Epub 2014 Oct 24. PMID: 25344347.
+DOI: 10.1177/0956797614552828
+- Data/materials repository URL: https://github.com/B-Sevchik/ps3/tree/master/ps3/Group%20A/Choice%201/data
+- Part A (known case) or Part B (a classmate's project paper): Part A
+
+## Target outcomes
+
+Written **before** opening the data. Quote each from the paper. In Part B, one of these must
+be the project's key effect.
+
+| # | Target outcome (quoted) | Paper value(s) |
+|---|---|---|
+| 1 | "confirm that participants indeed viewed the potential date as unattractive"| "A paired-samples t test indicated that participants found the potential date (M = 4.48) to be significantly less attractive than themselves (M = 6.08), t(103) = 6.77, p < .001." |
+| 2 | "primary hypothesis that participants would be more reluctant to reject the unattractive date when they believed the situation to be real rather than hypothetical" | "A chi-square test of independence indicated that participants were significantly less likely to reject the unattractive potential date in the real condition compared with the hypothetical condition, χ2(1, N = 132) = 6.77, p = .009"|
+| 3 | "potential effects of the experimental manipulation (real condition vs. hypothetical condition) on participants’ self-reported motives regarding their decision"|"Results of a Wilks’s lambda multivariate analysis of variance (ANOVA) were significant, F(2, 129) = 4.85, p = .009, ηp2 = .07." |
+| 4 |"whether participants’ willingness to reject the incompatible potential dates differed on the basis of whether they believed the situation to be real or hypothetical" |"A test of independence indicated that participants in the real condition were significantly less likely to reject the unattractive potential date than were participants in the hypothetical condition, χ2(1, N = 99) = 8.22, p = .004." |
+| 5 |"whether the experimental manipulation (real condition vs. hypothetical condition) affected participants’ self-reported motives for their choices" |"Results of a Wilks’s lambda multivariate ANOVA were significant, F(2, 96) = 3.71, p = .03, ηp2 = .07." |
+| 6 |"whether other-focused motives was a mediator of the effect of condition (hypothetical vs. real) on decision to reject the date (no vs. yes)" | "other-focused motives marginally mediated this association between condition and outcome, partially explaining why participants in the real condition were less willing to reject their potential dates than were participants in the hypothetical condition. The point estimate of the indirect effect was −0.20 (SE = 0.15), with a bias-corrected and accelerated 95% confidence interval of −0.57 to 0.04."|
+
+## Materials inventory
+
+| Item | Available? | Notes |
+|---|---|---|
+| Raw data | Yes | |
+| Processed data | Yes | In same file as raw data |
+| Codebook / variable descriptions |No |Some of the study 2 .sav files, however, have descriptions of what number responses refer to, and you can deduce what some of the variable names are from the materials/surveys provided on OSF. |
+| Analysis code |No | |
+| Preregistration |No| |
+
+## Reproduction
+
+The agent's work, under your direction. Keep all code visible.
+
+```{r}
+#| label: setup
+library(tidyverse)
+```
+
+```{r}
+#| label: load
+```
+
+```{r}
+#| label: preprocess
+```
+
+```{r}
+#| label: analysis
+```
+
+## Checker's verdict
+
+Filled in by you, not the agent.
+
+| # | Paper value | Reproduced value | Verdict (exact / minor / major / not reproducible) | Reason for discrepancy |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+
+Agent's own claim about success, and whether it was right:
+
+## Time
+
+- Your time (hours):
+- Agent wall-clock time (hours):
+- Stopped at the 4-hour cap? What remained:
+
+## Assessment
+
+Is the primary result analytically reproducible? What would have made this take 30 minutes?
+
+## AI documentation
+
+- Agent and interface (e.g., Claude Code, Codex CLI, Cursor):
+- Model and version, if the tool reports it:
+- Context you gave it (files, instructions, any context file):
+- Number of times you intervened, and the most important intervention:
+- Transcript: link to the exported transcript in your repo (`transcripts/`). If your tool
+  cannot export one, paste your prompts in order here instead.
