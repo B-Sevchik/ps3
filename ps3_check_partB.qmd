@@ -274,9 +274,9 @@ Here is the agent's claim about the key effect of interest: "I'm done. The key e
 
 ## Time
 
-- Your time (hours): 
-- Agent wall-clock time (hours): ~ 5 min
-- Stopped at the 4-hour cap? What remained:
+- Your time (hours): 1.6 hours
+- Agent wall-clock time (minutes): ~ 5 min
+- Stopped at the 4-hour cap? What remained: No, it took me less than 4 hours.
 
 ## Assessment
 
