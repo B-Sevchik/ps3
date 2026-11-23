@@ -223,7 +223,7 @@ Filled in by you, not the agent.
 | 1 | "A paired-samples t test indicated that participants found the potential date (M = 4.48) to be significantly less attractive than themselves (M = 6.08), t(103) = 6.77, p < .001."| M(date) = 4.48, M(self) = 6.08, t(102) = 6.77, p < .001 (p = 8.6 × 10⁻¹⁰)| minor| Degrees of freedom are off by 1; potential typo by original authors|
 | 2 |"A chi-square test of independence indicated that participants were significantly less likely to reject the unattractive potential date in the real condition compared with the hypothetical condition, χ2(1, N = 132) = 6.77, p = .009" | χ²(1, N = 132) = 6.77, p = .009.|exact |n/a |
 | 3 |"Results of a Wilks’s lambda multivariate analysis of variance (ANOVA) were significant, F(2, 129) = 4.85, p = .009, ηp2 = .07." | F(2, 129) = 4.85, p = .009, ηp² = .07.|exact |n/a |
-| 4 |"A test of independence indicated that participants in the real condition were significantly less likely to reject the unattractive potential date than were participants in the hypothetical condition, χ2(1, N = 99) = 8.22, p = .004." | |χ²(1, N = 99) = 8.22, p = .004 | exact| Note that AI notes the ambiguity in original paper that it does not specify if a continuity correction was used, so it just followed what was in the template (correct = FALSE), but this template was arbitrary/the agent should not have used this as a hint. As such, there is potential bias here where the AI followed this method because it is what replicated the original study, despite ambiguity in the original study. |
+| 4 |"A test of independence indicated that participants in the real condition were significantly less likely to reject the unattractive potential date than were participants in the hypothetical condition, χ2(1, N = 99) = 8.22, p = .004." | χ²(1, N = 99) = 8.22, p = .004 | exact| Note that AI notes the ambiguity in original paper that it does not specify if a continuity correction was used, so it just followed what was in the template (correct = FALSE), but this template was arbitrary/the agent should not have used this as a hint. As such, there is potential bias here where the AI followed this method because it is what replicated the original study, despite ambiguity in the original study. |
 | 5 |"Results of a Wilks’s lambda multivariate ANOVA were significant, F(2, 96) = 3.71, p = .03, ηp2 = .07." |F(2, 96) = 3.71, p = .028 (rounds to .03), ηp² = .07 | exact | n/a |
 | 6 |The point estimate of the indirect effect was −0.20 (SE = 0.15), with a bias-corrected and accelerated 95% confidence interval of −0.57 to 0.04." | point estimate = −0.20, SE ≈ 0.15, BCa 95% CI ≈ [−0.59, 0.02]| minor discrepancy| CI is slightly different; due to bootstrap randomness and possible differences in how R and SPSS (software original study used) does bootstrapping|
 
@@ -233,8 +233,8 @@ I believe the agent was right in its assessment.
 
 ## Time
 
-- Your time (hours):
-- Agent wall-clock time (hours): 11 min.
+- Your time (minutes): 66 min.
+- Agent wall-clock time (minutes): 11 min.
 - Stopped at the 4-hour cap? What remained: Took less than 4 hours
 
 ## Assessment
