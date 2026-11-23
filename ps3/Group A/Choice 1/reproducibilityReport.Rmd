@@ -50,8 +50,19 @@ d <- read_sav('data/Empathy Gap Study 1 data.sav')
 
 # Step 3: Tidy data
 
-```{r}
+The `.sav` file is already in its final form: it has 132 rows, so the 18 participants excluded in the paper (15 suspicious, 3 not single) are already gone. The variables needed for the paper's analyses sit after the `REQUIRED_VARIABLES_START_BELOW` marker. Per the SPSS value labels, `condition` is coded 0 = hypothetical, 1 = real, and `exchangeinfo` is coded 1 = yes (agreed to exchange contact info), 2 = no (rejected the date).
 
+```{r}
+d_tidy <- d %>%
+  select(ID, condition, exchangeinfo) %>%
+  mutate(condition = factor(condition, levels = c(0, 1),
+                            labels = c("hypothetical", "real")),
+         exchange  = factor(exchangeinfo, levels = c(1, 2),
+                            labels = c("yes", "no")))
+
+# sanity checks: N = 132, no missing values on the IV or DV
+nrow(d_tidy)
+d_tidy %>% summarise(across(c(condition, exchange), ~ sum(is.na(.x))))
 ```
 
 # Step 4: Run analysis
@@ -61,9 +72,15 @@ d <- read_sav('data/Empathy Gap Study 1 data.sav')
 > Only 10 of the 61 participants in the hypothetical condition chose to exchange contact information with the unattractive potential date (16%). In contrast, 26 of the 71 participants in the real condition chose to exchange contact information (37%).
 
 ```{r}
-# reproduce the above results here
-
+desc <- d_tidy %>%
+  group_by(condition) %>%
+  summarise(n_total    = n(),
+            n_exchange = sum(exchange == "yes"),
+            pct_exchange = round(100 * n_exchange / n_total))
+kable(desc, col.names = c("Condition", "N", "N exchanged contact info", "% exchanged"))
 ```
+
+Reproduced: hypothetical = `r desc$n_exchange[1]` of `r desc$n_total[1]` (`r desc$pct_exchange[1]`%); real = `r desc$n_exchange[2]` of `r desc$n_total[2]` (`r desc$pct_exchange[2]`%). These match the paper exactly (10/61, 16%; 26/71, 37%).
 
 ## Inferential statistics
 
@@ -72,22 +89,27 @@ d <- read_sav('data/Empathy Gap Study 1 data.sav')
 Hint: if you are using the function chisq.test(), make sure to set the continuity correction to false ("correct = FALSE") since sample size is greater than 20. 
 
 ```{r}
-# reproduce the above results here
-
+tab <- table(d_tidy$condition, d_tidy$exchange)
+tab
+chi <- chisq.test(tab, correct = FALSE)
+chi
 ```
 
+Reproduced: $\chi^2$(`r chi$parameter`, N = `r sum(tab)`) = `r sprintf("%.2f", chi$statistic)`, p = `r sprintf("%.3f", chi$p.value)`. This matches the paper exactly ($\chi^2$(1, N = 132) = 6.77, p = .009).
+
 # Step 5: Reflection
+**Answered by Claude**:
 
 Were you able to reproduce the results you attempted to reproduce? If not, what part(s) were you unable to reproduce?
 
-> ANSWER HERE
+> Yes. Every target value reproduced exactly: the counts and percentages (10/61 = 16% hypothetical; 26/71 = 37% real) and the chi-square test of independence, $\chi^2$(1, N = 132) = 6.77, p = .009.
 
 How difficult was it to reproduce your results? 
 
-> ANSWER HERE
+> Not difficult. The shared file already had the final analytic sample of 132, so no exclusions had to be rebuilt, and a single chi-square test without continuity correction gave the reported statistic.
 
 What aspects made it difficult? What aspects made it easy?
 
-> ANSWER HERE
+> Easy: the authors marked the variables the paper's analyses need (`REQUIRED_VARIABLES_START_BELOW`) and gave the condition and DV variables SPSS value labels, so the coding was clear. The template's hint about `correct = FALSE` also helped, since the default Yates correction would give a different value. Harder: there is no codebook or analysis script. Raw pre-exclusion data are also not included, so the exclusions (15 suspicious, 3 not single) cannot be checked independently.
 
 

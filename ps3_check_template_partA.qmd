@@ -49,19 +49,170 @@ The agent's work, under your direction. Keep all code visible.
 ```{r}
 #| label: setup
 library(tidyverse)
+library(haven)  # read SPSS .sav files
+library(boot)   # bootstrap + BCa intervals for the mediation (target 6)
 ```
 
 ```{r}
 #| label: load
+data_dir <- "ps3/Group A/Choice 1/data"
+d1_raw <- read_sav(file.path(data_dir, "Empathy Gap Study 1 data.sav"))
+d2_raw <- read_sav(file.path(data_dir, "Empathy_Gap_Study_2_data.sav"))
+dim(d1_raw); dim(d2_raw)
 ```
+
+**Preprocessing notes.**
+
+- *Study 1*: the file already holds the final analytic sample (N = 132), so no exclusions are needed. `condition`: 0 = hypothetical, 1 = real. `exchangeinfo`: 1 = yes, 2 = no.
+- *Study 2*: the file has 102 rows. The SPSS value labels on `condition` say H = 1, R = 2, but the stored values are 0, 1 and NA, so the labels are stale. I treat **0 = hypothetical, 1 = real**, which is the only coding that reproduces the paper's counts (24/52 in the hypothetical condition, 35 of 47 = 74% in the real condition). Three rows lack `condition` and/or `exchange.contact`. Dropping them gives N = 99, which matches the paper's exclusion of 3 participants who "failed to respond to the key dependent measure."
+- *Both studies*: "decision to reject" (the mediation DV) is coded 1 when the participant declined to exchange contact info (`== 2`) and 0 otherwise. The other-focused and self-focused motive scores are the precomputed means of eight items each (`otherfocused_motives`, `selffocused_motives`).
 
 ```{r}
 #| label: preprocess
+d1 <- d1_raw %>%
+  zap_labels() %>%
+  transmute(condition, exchange = exchangeinfo, reject = as.numeric(exchangeinfo == 2),
+            otherfocused_motives, selffocused_motives, selfattractive, otherattractive)
+
+d2 <- d2_raw %>%
+  zap_labels() %>%
+  filter(!is.na(condition), !is.na(exchange.contact)) %>%
+  transmute(condition, exchange = exchange.contact, reject = as.numeric(exchange.contact == 2),
+            otherfocused_motives, selffocused_motives)
+
+nrow(d1); nrow(d2)
+table(Study1 = d1$condition, exchange = d1$exchange)
+table(Study2 = d2$condition, exchange = d2$exchange)
 ```
 
+### Target 1: Study 1 manipulation check (paired t test)
+
 ```{r}
-#| label: analysis
+#| label: t1
+d1_att <- d1 %>% filter(!is.na(selfattractive), !is.na(otherattractive))
+nrow(d1_att)
+c(M_self = mean(d1_att$selfattractive), M_date = mean(d1_att$otherattractive))
+t1 <- t.test(d1_att$selfattractive, d1_att$otherattractive, paired = TRUE)
+t1
 ```
+
+Result: M(date) = 4.48, M(self) = 6.08, **t(102) = 6.77**, p < .001 (p = 8.6 × 10⁻¹⁰). The paper reports t(**103**) = 6.77. Only 103 participants rated both their own and the date's attractiveness, so a paired test must have df = 102.
+
+### Target 2: Study 1 chi-square test of independence
+
+```{r}
+#| label: t2
+tab1 <- table(d1$condition, d1$exchange)
+prop.table(tab1, 1)
+chisq.test(tab1, correct = FALSE)
+```
+
+Result: 10/61 (16%) vs. 26/71 (37%), **χ²(1, N = 132) = 6.77, p = .009**.
+
+### Target 3: Study 1 MANOVA (Wilks's lambda)
+
+```{r}
+#| label: t3
+m1 <- manova(cbind(otherfocused_motives, selffocused_motives) ~ factor(condition), data = d1)
+s1 <- summary(m1, test = "Wilks")
+s1
+# with one hypothesis df (s = 1), multivariate partial eta^2 = 1 - Wilks's lambda
+1 - s1$stats[1, "Wilks"]
+```
+
+Result: Λ = 0.930, **F(2, 129) = 4.85, p = .009, ηp² = .07**.
+
+### Target 4: Study 2 chi-square test of independence
+
+```{r}
+#| label: t4
+tab2 <- table(d2$condition, d2$exchange)
+tab2
+prop.table(tab2, 1)
+chisq.test(tab2, correct = FALSE)
+```
+
+Result: 24/52 (46%) vs. 35/47 (74%), **χ²(1, N = 99) = 8.22, p = .004**. The paper doesn't say whether a continuity correction was used, so I followed Study 1 and the Part A template hint (`correct = FALSE`); this reproduces 8.22.
+
+### Target 5: Study 2 MANOVA (Wilks's lambda)
+
+```{r}
+#| label: t5
+m2 <- manova(cbind(otherfocused_motives, selffocused_motives) ~ factor(condition), data = d2)
+s2 <- summary(m2, test = "Wilks")
+s2
+1 - s2$stats[1, "Wilks"]
+```
+
+Result: Λ = 0.928, **F(2, 96) = 3.71, p = .028 (rounds to .03), ηp² = .07**.
+
+### Target 6: Study 2 mediation (bootstrap indirect effect)
+
+The paper used Preacher & Hayes's (2008) bootstrap method: 5,000 resamples with a BCa 95% CI. With a binary DV, that method fits the *a* path (condition → other-focused motives) by OLS and the *b* path (motives → reject, controlling for condition) by logistic regression, and takes the indirect effect as *a* × *b*. I rebuilt this with `boot`. As a check on the method and the coding, the path coefficients match Fig. 2: a = 0.79, b = −0.25, c = −1.22, c′ = −1.06.
+
+```{r}
+#| label: t6
+a_fit  <- lm(otherfocused_motives ~ condition, data = d2)
+bc_fit <- glm(reject ~ condition + otherfocused_motives, family = binomial, data = d2)
+c_fit  <- glm(reject ~ condition, family = binomial, data = d2)
+c(a = coef(a_fit)[["condition"]], b = coef(bc_fit)[["otherfocused_motives"]],
+  c = coef(c_fit)[["condition"]], c_prime = coef(bc_fit)[["condition"]])
+
+indirect <- function(dd, i) {
+  dd <- dd[i, ]
+  a <- coef(lm(otherfocused_motives ~ condition, data = dd))[["condition"]]
+  b <- coef(glm(reject ~ condition + otherfocused_motives, family = binomial, data = dd))[["otherfocused_motives"]]
+  a * b
+}
+set.seed(251)
+bt <- boot(d2, indirect, R = 5000)
+c(point = bt$t0, SE = sd(bt$t))
+boot.ci(bt, type = "bca")
+```
+
+The bootstrap CI is random, so its endpoints shift with the seed. To see how much the BCa limits vary, I repeated the bootstrap over 10 seeds:
+
+```{r}
+#| label: t6-seeds
+map_dfr(1:10, function(s) {
+  set.seed(s); b <- boot(d2, indirect, R = 5000)
+  ci <- boot.ci(b, type = "bca")$bca
+  tibble(seed = s, SE = sd(b$t), lower = ci[4], upper = ci[5])
+}) %>% mutate(across(-seed, ~ round(.x, 3)))
+```
+
+Result: **point estimate = −0.20, SE ≈ 0.15, BCa 95% CI ≈ [−0.59, 0.02]** (seed 251). The paper reports −0.20 (SE = 0.15), [−0.57, 0.04]. The point estimate and SE match. The CI limits differ by about 0.02. Across 10 seeds the upper limit ranged from 0.02 to 0.04, which covers the paper's 0.04. The lower limit ranged from −0.64 to −0.58, slightly wider than the paper's −0.57. The remaining gap is most likely bootstrap randomness plus small implementation differences between R's `boot` BCa and the Preacher & Hayes SPSS macro (e.g., the jackknife acceleration estimate). The substantive conclusion is the same: the CI includes 0, which the paper calls "marginal" mediation.
+
+Extra check (not a listed target): the Study 1 ANOVAs in Table 1 also match: other-focused F(1, 130) = 7.82, p = .006; self-focused F(1, 130) = 4.77, p = .03, both printed by `summary.aov(m1)`. The Study 1 logistic paths match Fig. 1 (b_other = −0.58, b_self = −1.76, c′ = −0.60).
+
+```{r}
+#| label: extra
+summary.aov(m1)
+```
+
+### Agent's summary of reproduction (per statistic)
+
+| # | Statistic | Paper | Reproduced | Reproduced successfully? |
+|---|---|---|---|---|
+| 1 | M date / M self | 4.48 / 6.08 | 4.48 / 6.08 | Yes (exact) |
+| 1 | t | 6.77 | 6.77 | Yes (exact) |
+| 1 | df | 103 | 102 (103 complete pairs) | No: minor discrepancy, probably a reporting typo (N given as df) |
+| 1 | p | < .001 | 8.6 × 10⁻¹⁰ | Yes |
+| 2 | Hypothetical exchanged | 10/61 (16%) | 10/61 (16%) | Yes (exact) |
+| 2 | Real exchanged | 26/71 (37%) | 26/71 (37%) | Yes (exact) |
+| 2 | χ²(1, N = 132) | 6.77 | 6.77 | Yes (exact) |
+| 2 | p | .009 | .009 | Yes (exact) |
+| 3 | F(2, 129) | 4.85 | 4.85 | Yes (exact) |
+| 3 | p | .009 | .009 | Yes (exact) |
+| 3 | ηp² | .07 | .07 | Yes (exact) |
+| 4 | χ²(1, N = 99) | 8.22 | 8.22 | Yes (exact) |
+| 4 | p | .004 | .004 | Yes (exact) |
+| 5 | F(2, 96) | 3.71 | 3.71 | Yes (exact) |
+| 5 | p | .03 | .028 | Yes (exact after rounding) |
+| 5 | ηp² | .07 | .07 | Yes (exact) |
+| 6 | Indirect effect | −0.20 | −0.20 | Yes (exact) |
+| 6 | SE | 0.15 | 0.15 | Yes (exact) |
+| 6 | BCa 95% CI | [−0.57, 0.04] | [−0.59, 0.02] (seed 251) | Yes, minor: limits about 0.02 off and vary with the seed (lower −0.64 to −0.58 and upper 0.02 to 0.04 across seeds); same conclusion (CI includes 0) |
 
 ## Checker's verdict
 
@@ -78,8 +229,8 @@ Agent's own claim about success, and whether it was right:
 ## Time
 
 - Your time (hours):
-- Agent wall-clock time (hours):
-- Stopped at the 4-hour cap? What remained:
+- Agent wall-clock time (hours): 11 min.
+- Stopped at the 4-hour cap? What remained: 
 
 ## Assessment
 
