@@ -1,0 +1,94 @@
+---
+title: "Reproducibility check: Sievers et al. 2013"
+author: "Brooke Sevchik"
+date: today
+format:
+  html:
+    toc: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Article
+
+- Citation and DOI: B. Sievers, L. Polansky, M. Casey, & T. Wheatley, Music and movement share a dynamic structure that supports universal expressions of emotion, Proc. Natl. Acad. Sci. U.S.A. 110 (1) 70-75, https://doi.org/10.1073/pnas.1209023110 (2013).
+DOI: https://doi.org/10.1073/pnas.1209023110
+- Data/materials repository URL: Data materials are hosted on PNAS journal website where original article is also posted: https://www.pnas.org/doi/full/10.1073/pnas.1209023110. I have added these to my ps3 repository as well for an agent to access: https://github.com/B-Sevchik/ps3/tree/master/Sievers_2012_open. I only added the excel sheets with the data out of all the open data, since this was the only thing required for the agent to read.
+- Part A (known case) or Part B (a classmate's project paper): Part B
+- Part B only: the classmate's project repo, and which target outcome is its key effect:
+The target outcome that is the key effect of my classmate's project is the Emotion x Slider interaction (original: partial η^2 = 0.23).
+
+## Target outcomes
+
+Written **before** opening the data. Quote each from the paper. In Part B, one of these must
+be the project's key effect.
+
+| # | Target outcome (quoted) | Paper value(s) |
+|---|---|---|
+| 1 | "whether subjects who used music to express an emotion set the slider bars to the same positions as subjects who expressed the same emotion with the moving ball" | "Emotion had the largest main effect on slider position [F(2.97, 142.44) = 185.56, P < 0.001, partial η2 = 0.79]. This main effect was qualified by an Emotion × Slider interaction indicating each emotion required different slider settings [F(4.81, 230.73) = 112.90, P < 0.001; partial η2 = 0.70]. Although we did find a significant main effect of Modality (music vs. movement) [F(1,48) = 4.66, P < 0.05], it was small (partial η2 = 0.09) and did not interact with Emotion [Emotion × Modality: F(2.97, 142.44) = 0.97, P > 0.4; partial η2 = 0.02]. We also found a three-way interaction between Slider, Emotion, and Modality. This interaction was significant but modest [F(4.81, 230.73) = 4.50, P < 0.001; partial η2 = 0.09]" |
+| 2 | "Are emotional expressions similar across cultures?" | "Emotion had the largest main effect on slider position [F(3.76, 492.23) = 40.60, P < 0.001, partial η2 = 0.24], accounting for 24% of the overall (effect plus error) variance. This main effect of Emotion was qualified by an Emotion × Sliders interaction, indicating each emotion was expressed by different slider settings [F(13.68, 1791.80) = 38.22, P < 0.001; partial η2 = 0.23]. Emotion also interacted with Population, albeit more modestly [F(3.76, 492.23) = 11.53, P < 0.001, partial η2 = 0.08] and both were qualified by the three-way Emotion × Sliders × Population interaction, accounting for 7% of the overall variance in slider bar settings [F(13.68, 1791.80) = 10.13, P < 0.001, partial η2 = 0.07]."|
+| 3 | "Are emotional expressions universally cross-modal?" | "There were no significant main effects of Modality (music vs. movement) [F(1,131) = 0.004, P = 0.95] or Population (United States, Kreung) [F(1,131) < 0.001, P = 0.99] and no interaction between the two [F(1,131) = 1.15, P = 0.29]. Emotion also interacted with Modality [F(3.76, 492.23) = 2.84, P = 0.02; partial η2 = 0.02], which was qualified by the three-way Emotion × Modality × Sliders [F(13.68, 1791.80) = 4.92, P < 0.001; partial η2 = 0.04] and the four-way Emotion × Modality × Sliders × Population interactions [F(13.68, 1791.80) = 2.8, P < 0.001; partial η2 = 0.02]. All of these Modality interactions were modest, accounting for between 2% and 4% of the overall variance."|
+
+## Materials inventory
+
+| Item | Available? | Notes |
+|---|---|---|
+| Raw data | Yes | |
+| Processed data | No | |
+| Codebook / variable descriptions | No (not formally) | Although there is no formal codebook or document with exact variable descriptions, the column names in the spreadsheets are descriptive enough that with the paper it is obvious what the variables names refer to.|
+| Analysis code | No | |
+| Preregistration | No | |
+
+## Reproduction
+
+The agent's work, under your direction. Keep all code visible.
+
+```{r}
+#| label: setup
+library(tidyverse)
+```
+
+```{r}
+#| label: load
+```
+
+```{r}
+#| label: preprocess
+```
+
+```{r}
+#| label: analysis
+```
+
+## Checker's verdict
+
+Filled in by you, not the agent.
+
+| # | Paper value | Reproduced value | Verdict (exact / minor / major / not reproducible) | Reason for discrepancy |
+|---|---|---|---|---|
+| 1 | | | | |
+| 2 | | | | |
+| 3 | | | | |
+
+Agent's own claim about success, and whether it was right:
+
+## Time
+
+- Your time (hours):
+- Agent wall-clock time (hours):
+- Stopped at the 4-hour cap? What remained:
+
+## Assessment
+
+Is the primary result analytically reproducible? What would have made this take 30 minutes?
+
+## AI documentation
+
+- Agent and interface (e.g., Claude Code, Codex CLI, Cursor):
+- Model and version, if the tool reports it:
+- Context you gave it (files, instructions, any context file):
+- Number of times you intervened, and the most important intervention:
+- Transcript: link to the exported transcript in your repo (`transcripts/`). If your tool
+  cannot export one, paste your prompts in order here instead.
