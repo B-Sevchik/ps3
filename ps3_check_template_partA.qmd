@@ -220,27 +220,37 @@ Filled in by you, not the agent.
 
 | # | Paper value | Reproduced value | Verdict (exact / minor / major / not reproducible) | Reason for discrepancy |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+| 1 | "A paired-samples t test indicated that participants found the potential date (M = 4.48) to be significantly less attractive than themselves (M = 6.08), t(103) = 6.77, p < .001."| M(date) = 4.48, M(self) = 6.08, t(102) = 6.77, p < .001 (p = 8.6 × 10⁻¹⁰)| minor| Degrees of freedom are off by 1; potential typo by original authors|
+| 2 |"A chi-square test of independence indicated that participants were significantly less likely to reject the unattractive potential date in the real condition compared with the hypothetical condition, χ2(1, N = 132) = 6.77, p = .009" | χ²(1, N = 132) = 6.77, p = .009.|exact |n/a |
+| 3 |"Results of a Wilks’s lambda multivariate analysis of variance (ANOVA) were significant, F(2, 129) = 4.85, p = .009, ηp2 = .07." | F(2, 129) = 4.85, p = .009, ηp² = .07.|exact |n/a |
+| 4 |"A test of independence indicated that participants in the real condition were significantly less likely to reject the unattractive potential date than were participants in the hypothetical condition, χ2(1, N = 99) = 8.22, p = .004." | |χ²(1, N = 99) = 8.22, p = .004 | exact| Note that AI notes the ambiguity in original paper that it does not specify if a continuity correction was used, so it just followed what was in the template (correct = FALSE), but this template was arbitrary/the agent should not have used this as a hint. As such, there is potential bias here where the AI followed this method because it is what replicated the original study, despite ambiguity in the original study. |
+| 5 |"Results of a Wilks’s lambda multivariate ANOVA were significant, F(2, 96) = 3.71, p = .03, ηp2 = .07." |F(2, 96) = 3.71, p = .028 (rounds to .03), ηp² = .07 | exact | n/a |
+| 6 |The point estimate of the indirect effect was −0.20 (SE = 0.15), with a bias-corrected and accelerated 95% confidence interval of −0.57 to 0.04." | point estimate = −0.20, SE ≈ 0.15, BCa 95% CI ≈ [−0.59, 0.02]| minor discrepancy| CI is slightly different; due to bootstrap randomness and possible differences in how R and SPSS (software original study used) does bootstrapping|
 
 Agent's own claim about success, and whether it was right:
+Here is the agent's claim: "I'm done. Every statistic in the Target Outcomes section reproduced, apart from two minor discrepancies, and neither one changes a conclusion."
+I believe the agent was right in its assessment.
 
 ## Time
 
 - Your time (hours):
 - Agent wall-clock time (hours): 11 min.
-- Stopped at the 4-hour cap? What remained: 
+- Stopped at the 4-hour cap? What remained: Took less than 4 hours
 
 ## Assessment
 
 Is the primary result analytically reproducible? What would have made this take 30 minutes?
+Yes, the primary result is analytically reproducible. It would have taken shorter, around 30 minutes, if the authors had provided open code as well.
 
 ## AI documentation
 
-- Agent and interface (e.g., Claude Code, Codex CLI, Cursor):
-- Model and version, if the tool reports it:
-- Context you gave it (files, instructions, any context file):
-- Number of times you intervened, and the most important intervention:
+- Agent and interface (e.g., Claude Code, Codex CLI, Cursor): Claude
+- Model and version, if the tool reports it: Opus 5.5 Medium
+- Context you gave it (files, instructions, any context file): Here are the instructions I typed into Claude, I did not use any other context file: 
+"Please reproduce the target outcomes of a specified paper, Joel et al. 2014. Note that any path I give you might have extraneous paths before 'ps3' which is currently opened in VSCode. This folder: '/Users/bsevchik/Documents/GitHub/PSYCH251/ps3/ps3/Group A/Choice 1’
+contains a PDF of the original research article (article.pdf), as well as the data from Experiment 1 and Experiment 2 (in the ‘data’ folder), and a reproducibilityReport.Rmd describing the target outcomes.
+Please complete your work in the report template (reproducibilityReport.Rmd), and keep all code visible. Fill in this report. Please also use the “Reproduction” section of /Users/bsevchik/Documents/GitHub/PSYCH251/ps3/ps3_check_template_partA.qmd to check every statistic in the “Target Outcomes” section and note the numbers you got. Please also declare for each of these statistics if that statistic was reproduced successfully.
+Please ask me if you need help finding any files, or intervene with questions instead of making something up. Please declare when you are done."
+- Number of times you intervened, and the most important intervention: I did not intervene, Claude kept running. The only intervention was a pop-up on VSCode (where I was running Claude through an extension), that said "Do you want to install the recommended 'vscode-pdf' extension from tomoki1207 for article.pdf?", so I intervened and installed this extension, but I don't think Claude used it anyway based on this output message from the agent: "To read PDFs, I installed pypdf in a temporary folder, not in your project."
 - Transcript: link to the exported transcript in your repo (`transcripts/`). If your tool
-  cannot export one, paste your prompts in order here instead.
+  cannot export one, paste your prompts in order here instead. https://github.com/B-Sevchik/ps3/blob/master/transcripts/claude_transcript_partA.txt
