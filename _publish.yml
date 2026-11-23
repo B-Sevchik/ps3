@@ -1,0 +1,8 @@
+- source: ps3_check_partA.qmd
+  posit-connect-cloud:
+    - id: 01a206db-3a0f-a490-7f17-3a6ac74567cb
+      url: https://connect.posit.cloud/bsevchik/content/01a206db-3a0f-a490-7f17-3a6ac74567cb
+- source: ps3_check_partB.qmd
+  posit-connect-cloud:
+    - id: 01a206de-524d-4da6-d9fd-062eee553505
+      url: https://connect.posit.cloud/bsevchik/content/01a206de-524d-4da6-d9fd-062eee553505

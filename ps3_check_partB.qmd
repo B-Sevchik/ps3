@@ -18,7 +18,7 @@ DOI: https://doi.org/10.1073/pnas.1209023110
 - Data/materials repository URL: Data materials are hosted on PNAS journal website where original article is also posted: https://www.pnas.org/doi/full/10.1073/pnas.1209023110. I have added these to my ps3 repository as well for an agent to access: https://github.com/B-Sevchik/ps3/tree/master/Sievers_2012_open. I only added the excel sheets with the data out of all the open data, since this was the only thing required for the agent to read.
 - Part A (known case) or Part B (a classmate's project paper): Part B
 - Part B only: the classmate's project repo, and which target outcome is its key effect:
-The target outcome that is the key effect of my classmate's project is the Emotion x Slider interaction (original: partial η^2 = 0.23).
+The target outcome that is the key effect of my classmate's project is the Emotion x Slider interaction (original: partial η^2 = 0.23). Here is my classmate's project repo: https://github.com/psych251/sievers2012
 
 ## Target outcomes
 
