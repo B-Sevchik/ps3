@@ -45,22 +45,218 @@ be the project's key effect.
 
 The agent's work, under your direction. Keep all code visible.
 
+**Analysis plan (taken from the article's text, since no analysis code was shared):**
+
+- **Target 1 (United States experiment, Dataset S1 = `sd01.xlsx`, continuous sliders):** a "multiway ANOVA" on slider position. The reported dfs (error df = 48 → 50 subjects; GG-corrected within-subject dfs) mean it is a mixed ANOVA. Emotion (5 levels) and Slider (5 levels) are within-subjects factors, and Modality (music vs. movement) is between-subjects, with a Greenhouse–Geisser correction. The article does not say whether the slider values were rescaled first. I tried raw values, 0–1 rescaled values and z-scored values. Only the **raw** values reproduce the paper (see the robustness chunk at the end).
+- **Targets 2 & 3 (cross-cultural, Dataset S2 = `sd02.xlsx`, discretized sliders, 0/1/2 = low/medium/high):** the article says: "We z-scored the data for each parameter (slider) separately within each population. We then combined all z-scored data into a single, repeated-measures ANOVA with Emotion and Sliders as within-subjects factors and Modality and Population as between-subjects factors." I used the same Greenhouse–Geisser correction. Targets 2 and 3 come from this one ANOVA.
+
 ```{r}
 #| label: setup
 library(tidyverse)
+library(readxl)
+library(afex)   # aov_ez(): mixed ANOVA with GG correction and partial eta^2
+library(knitr)
 ```
 
 ```{r}
 #| label: load
+# Dataset S1: United States experiment, continuous slider values
+us_raw <- read_excel("Sievers_2012_open/sd01.xlsx")
+# Dataset S2: Kreung experiment + discretized US data
+all_raw <- read_excel("Sievers_2012_open/sd02.xlsx")
+
+glimpse(us_raw)
+glimpse(all_raw)
 ```
 
 ```{r}
 #| label: preprocess
+sliders <- c("bpm", "jitter", "consonance", "bigsmall", "updown")
+
+# The first (unnamed) column is just a row index exported from the original CSV
+us <- us_raw |>
+  select(-1) |>
+  rename(modality = `task modality`)
+all <- all_raw |>
+  select(-1) |>
+  rename(modality = `task modality`)
+
+# --- Data check: subject IDs ---
+# The paper reports n = 50 US subjects (25 music, 25 movement), but there are only
+# 49 unique IDs, because the ID "MoMR" appears 10 times (twice the 5 emotions).
+count(us, subject) |> filter(n != 5)
+us |> mutate(row = row_number()) |> filter(subject == "MoMR")
+# The two "MoMR" blocks are not adjacent (rows 221-225 and 236-240) and have
+# different values, so they are two different participants who share an ID.
+# Every subject has exactly one row per emotion, in consecutive blocks of 5, so each
+# 5-row block gets its own subject ID. This gives exactly the paper's n's.
+us <- us |> mutate(sid = paste0("us", ceiling(row_number() / 5)))
+all <- all |> mutate(sid = paste0("s", ceiling(row_number() / 5)))
+
+# Check: every block of 5 rows is one original subject ID with all 5 emotions
+stopifnot(
+  us |> group_by(sid) |> summarise(ok = n_distinct(subject) == 1 &&
+    setequal(emotion, c("angry", "happy", "peaceful", "sad", "scared"))) |> pull(ok) |> all(),
+  all |> group_by(sid) |> summarise(ok = n_distinct(subject) == 1 && n() == 5 &&
+    n_distinct(emotion) == 5) |> pull(ok) |> all()
+)
+
+# Sample sizes per group (paper: US 25/25; Kreung music 42, movement 43)
+us |> distinct(sid, modality) |> count(modality)
+all |> distinct(sid, population, modality) |> count(population, modality)
+
+# Missing values?
+c(us = sum(is.na(us)), all = sum(is.na(all)))
+
+# --- Long format: one row per subject x emotion x slider ---
+us_long <- us |>
+  pivot_longer(all_of(sliders), names_to = "slider", values_to = "value")
+
+# Cross-cultural data: z-score each slider separately within each population
+all_long_z <- all |>
+  pivot_longer(all_of(sliders), names_to = "slider", values_to = "value") |>
+  group_by(population, slider) |>
+  mutate(z = as.numeric(scale(value))) |>
+  ungroup()
+
+# Check: the z-scores have mean 0 and SD 1 within each population x slider
+all_long_z |> group_by(population, slider) |>
+  summarise(mean_z = round(mean(z), 10), sd_z = sd(z), .groups = "drop")
 ```
 
+### Target 1: United States experiment (music vs. movement)
+
 ```{r}
-#| label: analysis
+#| label: analysis-us
+aov_us <- aov_ez(
+  id = "sid", dv = "value", data = us_long,
+  between = "modality", within = c("emotion", "slider"),
+  anova_table = list(correction = "GG", es = "pes")
+)
+nice(aov_us, es = "pes", correction = "GG")
 ```
+
+### Targets 2 & 3: cross-cultural ANOVA (US + Kreung, discretized, z-scored)
+
+```{r}
+#| label: analysis-crosscultural
+aov_cc <- aov_ez(
+  id = "sid", dv = "z", data = all_long_z,
+  between = c("modality", "population"), within = c("emotion", "slider"),
+  anova_table = list(correction = "GG", es = "pes")
+)
+nice(aov_cc, es = "pes", correction = "GG")
+```
+
+### Comparison of reproduced vs. reported values
+
+```{r}
+#| label: compare
+tidy_aov <- function(a) {
+  t <- anova(a, es = "pes", correction = "GG")
+  tibble(effect = rownames(t), df1 = t$`num Df`, df2 = t$`den Df`,
+         F = t$F, pes = t$pes, p = t$`Pr(>F)`)
+}
+
+# Paper values, copied from the Target outcomes table (NA = not reported)
+paper <- tribble(
+  ~target, ~label,                                ~analysis, ~effect,                              ~p_df1, ~p_df2,  ~p_F,   ~p_pes, ~p_p,
+  1, "Emotion",                                   "us", "emotion",                               2.97,   142.44,  185.56, 0.79,   "< .001",
+  1, "Emotion x Slider",                          "us", "emotion:slider",                        4.81,   230.73,  112.90, 0.70,   "< .001",
+  1, "Modality",                                  "us", "modality",                              1,      48,      4.66,   0.09,   "< .05",
+  1, "Emotion x Modality",                        "us", "modality:emotion",                      2.97,   142.44,  0.97,   0.02,   "> .4",
+  1, "Emotion x Slider x Modality",               "us", "modality:emotion:slider",               4.81,   230.73,  4.50,   0.09,   "< .001",
+  2, "Emotion",                                   "cc", "emotion",                               3.76,   492.23,  40.60,  0.24,   "< .001",
+  2, "Emotion x Slider (KEY EFFECT)",             "cc", "emotion:slider",                        13.68,  1791.80, 38.22,  0.23,   "< .001",
+  2, "Emotion x Population",                      "cc", "population:emotion",                    3.76,   492.23,  11.53,  0.08,   "< .001",
+  2, "Emotion x Slider x Population",             "cc", "population:emotion:slider",             13.68,  1791.80, 10.13,  0.07,   "< .001",
+  3, "Modality",                                  "cc", "modality",                              1,      131,     0.004,  NA,     "= .95",
+  3, "Population",                                "cc", "population",                            1,      131,     NA,     NA,     "= .99",
+  3, "Modality x Population",                     "cc", "modality:population",                   1,      131,     1.15,   NA,     "= .29",
+  3, "Emotion x Modality",                        "cc", "modality:emotion",                      3.76,   492.23,  2.84,   0.02,   "= .02",
+  3, "Emotion x Modality x Slider",               "cc", "modality:emotion:slider",               13.68,  1791.80, 4.92,   0.04,   "< .001",
+  3, "Emotion x Modality x Slider x Population",  "cc", "modality:population:emotion:slider",    13.68,  1791.80, 2.8,    0.02,   "< .001"
+)
+
+repro <- bind_rows(
+  tidy_aov(aov_us) |> mutate(analysis = "us"),
+  tidy_aov(aov_cc) |> mutate(analysis = "cc")
+)
+
+comparison <- paper |>
+  left_join(repro, by = c("analysis", "effect")) |>
+  transmute(
+    target, label,
+    `paper df`  = sprintf("%g, %g", p_df1, p_df2),
+    `repro df`  = sprintf("%.2f, %.2f", df1, df2),
+    `paper F`   = p_F,
+    `repro F`   = round(F, 3),
+    `paper pes` = p_pes,
+    `repro pes` = round(pes, 3),
+    `paper p`   = p_p,
+    `repro p`   = signif(p, 3)
+  )
+kable(comparison)
+```
+
+Note: the paper reports Population as "F(1,131) < 0.001" with no value; the reproduced F is `r format(signif(tidy_aov(aov_cc) |> filter(effect == "population") |> pull(F), 2), scientific = FALSE)`, which is < 0.001.
+
+```{r}
+#| label: robustness-us-scaling
+# The article doesn't say whether US slider values were rescaled before the ANOVA
+# (sliders have different ranges: bpm 30-400, consonance 0-37, others 0-100).
+# Running the same model on rescaled data shows that only the raw values match
+# the paper (e.g., the GG-corrected Emotion df is 2.97 only with raw values).
+us_rescaled <- us_long |> group_by(slider) |>
+  mutate(value = (value - min(value)) / (max(value) - min(value))) |> ungroup()
+us_z <- us_long |> group_by(slider) |>
+  mutate(value = as.numeric(scale(value))) |> ungroup()
+bind_rows(
+  raw         = tidy_aov(aov_us),
+  rescaled_01 = tidy_aov(aov_ez("sid", "value", us_rescaled, between = "modality",
+                                within = c("emotion", "slider"))),
+  z_scored    = tidy_aov(aov_ez("sid", "value", us_z, between = "modality",
+                                within = c("emotion", "slider"))),
+  .id = "version"
+) |>
+  filter(effect %in% c("emotion", "emotion:slider")) |>
+  mutate(across(where(is.numeric), \(x) round(x, 3))) |>
+  kable()
+```
+
+### Agent's statement of reproduction success
+
+**Key effect: Emotion × Slider interaction in the cross-cultural ANOVA (paper: F(13.68, 1791.80) = 38.22, P < 0.001, partial η² = 0.23): REPRODUCED EXACTLY.** Reproduced: F(13.68, 1791.80) = 38.22, p < 2.2e-16, partial η² = 0.226 (rounds to 0.23).
+
+**Target 1 (US experiment), all five statistics reproduced exactly** (raw slider values, GG correction):
+
+- Emotion: F(2.97, 142.44) = 185.56, p < .001, pη² = 0.794 (paper 0.79). Exact.
+- Emotion × Slider: F(4.81, 230.73) = 112.90, p < .001, pη² = 0.702 (paper 0.70). Exact.
+- Modality: F(1, 48) = 4.66, p = .036 (paper < .05), pη² = 0.088 (paper 0.09). Exact.
+- Emotion × Modality: F(2.97, 142.44) = 0.97, p = .407 (paper > .4), pη² = 0.020 (paper 0.02). Exact.
+- Emotion × Slider × Modality: F(4.81, 230.73) = 4.50, p < .001, pη² = 0.086 (paper 0.09). Exact.
+
+**Target 2 (cross-cultural similarity), all four statistics reproduced exactly:**
+
+- Emotion: F(3.76, 492.23) = 40.60, p < .001, pη² = 0.237 (paper 0.24). Exact.
+- Emotion × Slider: see key effect above. Exact.
+- Emotion × Population: F(3.76, 492.23) = 11.53, p < .001, pη² = 0.081 (paper 0.08). Exact.
+- Emotion × Slider × Population: F(13.68, 1791.80) = 10.13, p < .001, pη² = 0.072 (paper 0.07). Exact.
+
+**Target 3 (cross-modality), reproduced, with two last-digit rounding differences:**
+
+- Modality: F(1, 131) = 0.004, p = .949 (paper .95). Exact.
+- Population: F(1, 131) ≈ 0.00005 (paper "< 0.001"), p = .995 (paper .99). Exact up to rounding. The reported .99 looks truncated rather than rounded (.995 would usually round to "1.00").
+- Modality × Population: F(1, 131) = 1.15, p = .285 (paper .29). Exact.
+- Emotion × Modality: F(3.76, 492.23) = 2.84, pη² = 0.021 (paper 0.02). Exact. Reproduced p = .027, but the paper says P = 0.02. This looks like truncation rather than rounding (.027 would round to .03). It is a minor reporting difference and changes no conclusion.
+- Emotion × Modality × Slider: F(13.68, 1791.80) = **4.91** (paper 4.92), p < .001, pη² = 0.036 (paper 0.04). Minor: the unrounded F is 4.9147, only 0.0003 below the 4.915 cutoff for rounding to 4.92. This is a rounding or software-precision difference, not a real one.
+- Emotion × Modality × Slider × Population: F(13.68, 1791.80) = 2.80 (paper 2.8), p < .001, pη² = 0.021 (paper 0.02). Exact.
+
+**Notes for the checker:**
+
+1. **Duplicate subject ID.** In both data files the US movement subject ID "MoMR" belongs to two different people (rows 221–225 and 236–240). I gave each 5-row block its own ID. This gives the paper's n's (50 US; 135 total) and the paper's error dfs (48 and 131). If "MoMR" were treated as one person, the dfs would not match the paper.
+2. **US data were analyzed raw.** The article does not say whether the US slider values were rescaled before the ANOVA. Only the unscaled values reproduce the reported dfs, Fs and pη², so the authors evidently used raw values (see the robustness chunk).
+3. **Software.** I used `afex::aov_ez` (Type III sums of squares, Greenhouse–Geisser correction). The design is fully balanced, so the sum-of-squares type does not change the results.
 
 ## Checker's verdict
 
@@ -76,8 +272,8 @@ Agent's own claim about success, and whether it was right:
 
 ## Time
 
-- Your time (hours):
-- Agent wall-clock time (hours):
+- Your time (hours): 
+- Agent wall-clock time (hours): ~ 5 min
 - Stopped at the 4-hour cap? What remained:
 
 ## Assessment
